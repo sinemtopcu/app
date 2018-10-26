@@ -5,40 +5,132 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
-namespace ConsoleApp2
+namespace Test2
 {
-    public struct Card
+    class Card
     {
-        public int rank;
-        public char suit;
+        public int Rank { get; set; }
+        public char Suit { get; set; }
+
+        public Card() { }
 
         public Card(int p1, char p2)
         {
-            rank = p1;
-            suit = p2;
+            Rank = p1;
+            Suit = p2;
         }
     }
 
-    public class Poker
+    class Hand
     {
-        public string winner = "";
-        int cntUser = 0;
-        public Poker() { }
+        public List<Card> card = new List<Card>();
+        const string pattern = @"\W+";
 
-        public Poker(int p1)
+        public Hand() { }
+
+        public Hand(string p1)
         {
-            cntUser = p1;
+            seperate(p1);
         }
 
-        public bool CheckFlush(Dictionary<string, Card[]> game)
+        public void seperate(string s)
+        {
+            CardRanks cr = new CardRanks();
+
+            foreach (string sub in Regex.Split(s, pattern))
+            {
+                string[] x = Regex.Split(sub, "(?=[HCDS])");
+                Card c = new Card(cr.getRank(x[0]), x[1][0]);
+                card.Add(c);
+            }
+            card.Sort((x, y) => x.Rank.CompareTo(y.Rank));
+        }
+    }
+
+    class Player
+    {
+        string _name;
+        public Hand _hand;
+
+        public Player() { }
+
+        public Player(string p1, string p2)
+        {
+            _name = p1;
+            _hand = new Hand(p2);
+        }
+
+        public string GetName()
+        {
+            return _name;
+        }
+
+        public void SetName(string name)
+        {
+            _name = name;
+        }
+    }
+
+    class CardRanks
+    {
+        Dictionary<string, int> cardRanks = new Dictionary<string, int>();
+
+        public CardRanks() { CreateRankings(); }
+
+        public void addRank(string _rank, int val)
+        {
+            cardRanks.Add(_rank, val);
+        }
+
+        public int getRank(string _rank)
+        {
+            cardRanks.TryGetValue(_rank, out int val);
+            return val;
+        }
+
+        public void CreateRankings()
+        {
+            int i = 0;
+            addRank("A", 14);
+            addRank("K", 13);
+            addRank("Q", 12);
+            addRank("J", 11);
+            for (i = 10; i > 1; i--)
+            {
+                addRank(i.ToString(), i);
+            }
+        }
+    }
+    class Poker
+    {
+        Dictionary<string, Player> users = new Dictionary<string, Player>();
+        string winner = "";
+
+        public Poker()
+        {
+
+        }
+
+        public void AddPlayer(string name, string hand)
+        {
+            Player p = new Player(name, hand);
+            users.Add(name, p);
+        }
+
+        public Player GetPlayer(string name)
+        {
+            return users[name];
+        }
+
+        private bool CheckFlush()
         {
             List<string> fList = new List<string>();
-            foreach (KeyValuePair<string, Card[]> g in game)
+            foreach (KeyValuePair<string, Player> g in users)
             {
-                if (g.Value[0].suit == g.Value[1].suit
-                    && g.Value[0].suit == g.Value[2].suit
-                    && g.Value[0].suit == g.Value[3].suit
-                    && g.Value[0].suit == g.Value[4].suit)
+                if (g.Value._hand.card[0].Suit == g.Value._hand.card[1].Suit
+                    && g.Value._hand.card[0].Suit == g.Value._hand.card[2].Suit
+                    && g.Value._hand.card[0].Suit == g.Value._hand.card[3].Suit
+                    && g.Value._hand.card[0].Suit == g.Value._hand.card[4].Suit)
                 {
                     fList.Add(g.Key);
                 }
@@ -55,7 +147,7 @@ namespace ConsoleApp2
                     {
                         for (int j = 4; j >= 0; j--)
                         {
-                            if (game[nam][j].rank > game[winner][j].rank)
+                            if (users[nam]._hand.card[j].Rank > users[winner]._hand.card[j].Rank)
                             {
                                 winner = nam;
                                 break;
@@ -72,17 +164,18 @@ namespace ConsoleApp2
             return true;
         }
 
-        public bool Check3OfAKind(Dictionary<string, Card[]> game)
+        private bool Check3OfAKind()
         {
             int j = 0, z = 0;
             Dictionary<string, int> fList = new Dictionary<string, int>();
-            foreach (KeyValuePair<string, Card[]> g in game)
+            foreach (KeyValuePair<string, Player> g in users)
             {
                 for (j = 4; j >= 2; j--)
                 {
-                    if (g.Value[j].rank == g.Value[j - 1].rank && g.Value[j - 1].rank == g.Value[j - 2].rank)
+                    if (g.Value._hand.card[j].Rank == g.Value._hand.card[j - 1].Rank
+                        && g.Value._hand.card[j - 1].Rank == g.Value._hand.card[j - 2].Rank)
                     {
-                        fList.Add(g.Key, g.Value[j].rank);
+                        fList.Add(g.Key, g.Value._hand.card[j].Rank);
                         break;
                     }
                 }
@@ -107,21 +200,21 @@ namespace ConsoleApp2
                             int tmp = 0, pntr = 4;
                             for (j = 4; j >= 0; j--)
                             {
-                                if (game[winner][j].rank == fList[winner])
+                                if (users[winner]._hand.card[j].Rank == fList[winner])
                                     j = j - 3;
                                 //if the value equals to 3ofakind iterate 3 indice
-                                tmp = game[winner][j].rank;
+                                tmp = users[winner]._hand.card[j].Rank;
                                 for (z = pntr; z >= 0; z--)
                                 {
-                                    if (game[sub.Key][z].rank == fList[sub.Key])
+                                    if (users[sub.Key]._hand.card[z].Rank == fList[sub.Key])
                                         z = z - 3;
-                                    if (game[sub.Key][z].rank > tmp)
+                                    if (users[sub.Key]._hand.card[z].Rank > tmp)
                                     {
                                         winner = sub.Key;
                                         j = -1;
                                         break;
                                     }
-                                    else if (tmp > game[sub.Key][z].rank)
+                                    else if (tmp > users[sub.Key]._hand.card[z].Rank)
                                     {
                                         j = -1;
                                         break;
@@ -146,17 +239,17 @@ namespace ConsoleApp2
             return true;
         }
 
-        public bool CheckOnePair(Dictionary<string, Card[]> game)
+        public bool CheckOnePair()
         {
             int j = 0, z = 0;
             Dictionary<string, int> fList = new Dictionary<string, int>();
-            foreach (KeyValuePair<string, Card[]> g in game)
+            foreach (KeyValuePair<string, Player> g in users)
             {
                 for (j = 4; j >= 1; j--)
                 {
-                    if (g.Value[j].rank == g.Value[j - 1].rank)
+                    if (g.Value._hand.card[j].Rank == g.Value._hand.card[j - 1].Rank)
                     {
-                        fList.Add(g.Key, g.Value[j].rank);
+                        fList.Add(g.Key, g.Value._hand.card[j].Rank);
                         break;
                     }
                 }
@@ -181,21 +274,21 @@ namespace ConsoleApp2
                             int tmp = 0, pntr = 4;
                             for (j = 4; j >= 0; j--)
                             {
-                                if (game[winner][j].rank == fList[winner])
+                                if (users[winner]._hand.card[j].Rank == fList[winner])
                                     j = j - 2;
                                 //if the value equals to 3ofakind iterate 3 indice
-                                tmp = game[winner][j].rank;
+                                tmp = users[winner]._hand.card[j].Rank;
                                 for (z = pntr; z >= 0; z--)
                                 {
-                                    if (game[sub.Key][z].rank == fList[sub.Key])
+                                    if (users[sub.Key]._hand.card[z].Rank == fList[sub.Key])
                                         z = z - 2;
-                                    if (game[sub.Key][z].rank > tmp)
+                                    if (users[sub.Key]._hand.card[z].Rank > tmp)
                                     {
                                         winner = sub.Key;
                                         j = -1;
                                         break;
                                     }
-                                    else if (tmp > game[sub.Key][z].rank)
+                                    else if (tmp > users[sub.Key]._hand.card[z].Rank)
                                     {
                                         j = -1;
                                         break;
@@ -220,12 +313,12 @@ namespace ConsoleApp2
             return true;
         }
 
-        public bool CheckHighCard(Dictionary<string, Card[]> game)
+        public bool CheckHighCard()
         {
             int j = 0, equal = 0;
             for (j = 4; j >= 0; j--)
             {
-                foreach (KeyValuePair<string, Card[]> g in game)
+                foreach (KeyValuePair<string, Player> g in users)
                 {
                     if (winner == "")
                     {
@@ -233,88 +326,36 @@ namespace ConsoleApp2
                     }
                     else
                     {
-                        if (g.Value[j].rank > game[winner][j].rank)
+                        if (g.Value._hand.card[j].Rank > users[winner]._hand.card[j].Rank)
                         {
                             winner = g.Key; equal = 0;
                         }
-                        else if (g.Value[j].rank == game[winner][j].rank)
+                        else if (g.Value._hand.card[j].Rank == users[winner]._hand.card[j].Rank)
                         {
                             equal = 1;
                         }
                     }
                 }
-                if (equal == 0 && winner != "") {
+                if (equal == 0 && winner != "")
+                {
                     break;
-                }else if (equal == 1) { winner = ""; }
+                }
+                else if (equal == 1) { winner = ""; }
             }
             return true;
         }
-    }
-    class Program
-    {
-        public const int CARD_COUNT = 5;
-        static void Main(string[] args)
+
+        public string FindWinner()
         {
-            int i = 0, k = 0, numOfPlayers = 0;
-            Poker _poker = new Poker();
-            Dictionary<string, int> cardRanks = new Dictionary<string, int>();
-            //Dictionary<string, int> suitRanks = new Dictionary<string, int>();
-            Dictionary<string, Card[]> users = new Dictionary<string, Card[]>();
-
-            cardRanks.Add("A", 14);
-            cardRanks.Add("K", 13);
-            cardRanks.Add("Q", 12);
-            cardRanks.Add("J", 11);
-            for (i = 10; i > 1; i--)
-            {
-                cardRanks.Add(i.ToString(), i);
-            }
-
-            Console.Write("How many players? : ");
-            numOfPlayers = Int32.Parse(Console.ReadLine());
-
-            i = 0;
-            String pattern = @"\W+";
-            while (i < numOfPlayers)
-            {
-                Console.Write("{0} Player Name : ", i + 1); string player = Console.ReadLine();
-                if (users.ContainsKey(player))
-                {
-                    Console.WriteLine("This player name exists, please enter a unique name to identify");
-                    continue;
-                }
-                Console.Write("{0} Player Hand : ", i + 1); string hand = Console.ReadLine();
-
-                k = 0;
-                Card[] c = new Card[CARD_COUNT];
-                foreach (string sub in Regex.Split(hand, pattern))
-                {
-                    string[] x = Regex.Split(sub, "(?=[HCDS])");
-                    cardRanks.TryGetValue(x[0], out c[k].rank);
-                    c[k].suit = x[1][0];
-                    k++;
-                }
-                if (k != CARD_COUNT)
-                {
-                    Console.WriteLine("Player {0} can not have more or less than {1} cards", i + 1, CARD_COUNT);
-                    continue;
-                }
-                Array.Sort<Card>(c, (x, y) => x.rank.CompareTo(y.rank));
-                users.Add(player, c);
-                i++;
-            }
-
-            if (_poker.CheckFlush(users))
-                Console.WriteLine(_poker.winner);
-            else if (_poker.Check3OfAKind(users))
-                Console.WriteLine(_poker.winner);
-            else if (_poker.CheckOnePair(users))
-                Console.WriteLine(_poker.winner);
-            else if (_poker.CheckHighCard(users))
-                Console.WriteLine(_poker.winner);
-
-
-            String name = Console.ReadLine();
+            if (CheckFlush())
+                return winner;
+            else if (Check3OfAKind())
+                return winner;
+            else if (CheckOnePair())
+                return winner;
+            else if (CheckHighCard())
+                return winner;
+            return winner;
         }
     }
 }

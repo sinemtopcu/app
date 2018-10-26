@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IQMetrix", "ConsoleApp2\IQMetrix.csproj", "{D82BCC45-00DB-4B5A-8E32-ADF1F6CD7F32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokerTest", "PokerTest\PokerTest.csproj", "{EB7A1109-7CDE-4906-BFD2-D6FFD49CD276}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test2", "Test2\Test2.csproj", "{486D0E21-5A00-4A5E-B2D6-EA89335CCF9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{D82BCC45-00DB-4B5A-8E32-ADF1F6CD7F32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D82BCC45-00DB-4B5A-8E32-ADF1F6CD7F32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D82BCC45-00DB-4B5A-8E32-ADF1F6CD7F32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB7A1109-7CDE-4906-BFD2-D6FFD49CD276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB7A1109-7CDE-4906-BFD2-D6FFD49CD276}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB7A1109-7CDE-4906-BFD2-D6FFD49CD276}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB7A1109-7CDE-4906-BFD2-D6FFD49CD276}.Release|Any CPU.Build.0 = Release|Any CPU
+		{486D0E21-5A00-4A5E-B2D6-EA89335CCF9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{486D0E21-5A00-4A5E-B2D6-EA89335CCF9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{486D0E21-5A00-4A5E-B2D6-EA89335CCF9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{486D0E21-5A00-4A5E-B2D6-EA89335CCF9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
