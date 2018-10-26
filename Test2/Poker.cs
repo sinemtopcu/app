@@ -209,6 +209,7 @@ namespace Test2
         public bool CheckOnePair()
         {
             int j = 0;
+            fList.Clear();
             foreach (KeyValuePair<string, Player> g in users)
             {
                 for (j = 4; j >= 1; j--)

@@ -59,6 +59,10 @@
       <Project>{d82bcc45-00db-4b5a-8e32-adf1f6cd7f32}</Project>
       <Name>IQMetrix</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Test2\Test2.csproj">
+      <Project>{486d0e21-5a00-4a5e-b2d6-ea89335ccf9e}</Project>
+      <Name>Test2</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
