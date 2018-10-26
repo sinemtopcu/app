@@ -104,6 +104,7 @@ namespace Test2
     class Poker
     {
         Dictionary<string, Player> users = new Dictionary<string, Player>();
+        Dictionary<string, int> fList = new Dictionary<string, int>();
         string winner = "";
         const int HAND_SIZE = 5;
 
@@ -184,86 +185,30 @@ namespace Test2
 
         private bool Check3OfAKind()
         {
-            int j = 0, z = 0;
-            Dictionary<string, int> fList = new Dictionary<string, int>();
+            fList.Clear();
             foreach (KeyValuePair<string, Player> g in users)
             {
-                //possible triplets - already sorted
-                // 0 , 1 , 2 , 3 , 4
-                // 9S, 8D, 8S, 8H, 7C
-                // 8D, 8S, 8H, 7C, 4C
-                // KH, QH, 8D, 8S, 8H
+                /*
+                    possible triplets - already sorted
+                     0 , 1 , 2 , 3 , 4
+                     9S, 8D, 8S, 8H, 7C
+                     8D, 8S, 8H, 7C, 4C
+                     KH, QH, 8D, 8S, 8H
+                */
                 if (g.Value._hand.card[1].Rank == g.Value._hand.card[3].Rank
                     || g.Value._hand.card[0].Rank == g.Value._hand.card[2].Rank
                     || g.Value._hand.card[2].Rank == g.Value._hand.card[4].Rank)
                 {
-                    fList.Add(g.Key, g.Value._hand.card[j].Rank);
+                    fList.Add(g.Key, g.Value._hand.card[2].Rank);
                     break;
                 }
             }
-            if (fList.Count > 0)
-            {
-                foreach (KeyValuePair<string, int> sub in fList)
-                {
-                    if (winner == "")
-                    {
-                        winner = sub.Key;
-                    }
-                    else
-                    {
-                        if (sub.Value > fList[winner])
-                        {
-                            winner = sub.Key;
-                        }
-                        else if (sub.Value == fList[winner])
-                        {
-                            //check the kickers
-                            int tmp = 0, pntr = 4;
-                            for (j = 4; j >= 0; j--)
-                            {
-                                if (users[winner]._hand.card[j].Rank == fList[winner])
-                                    j = j - 3;
-                                //if the value equals to 3ofakind iterate 3 indice
-                                tmp = users[winner]._hand.card[j].Rank;
-                                for (z = pntr; z >= 0; z--)
-                                {
-                                    if (users[sub.Key]._hand.card[z].Rank == fList[sub.Key])
-                                        z = z - 3;
-                                    if (users[sub.Key]._hand.card[z].Rank > tmp)
-                                    {
-                                        winner = sub.Key;
-                                        j = -1;
-                                        break;
-                                    }
-                                    else if (tmp > users[sub.Key]._hand.card[z].Rank)
-                                    {
-                                        j = -1;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        //if they're equal, set 2nd arrays pointer to where it lasted.
-                                        pntr = z - 1;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                winner = "";
-                return false;
-            }
-            return true;
+            return CheckKickers(3);
         }
 
         public bool CheckOnePair()
         {
-            int j = 0, z = 0;
-            Dictionary<string, int> fList = new Dictionary<string, int>();
+            int j = 0;
             foreach (KeyValuePair<string, Player> g in users)
             {
                 for (j = 4; j >= 1; j--)
@@ -275,63 +220,7 @@ namespace Test2
                     }
                 }
             }
-            if (fList.Count > 0)
-            {
-                foreach (KeyValuePair<string, int> sub in fList)
-                {
-                    if (winner == "")
-                    {
-                        winner = sub.Key;
-                    }
-                    else
-                    {
-                        if (sub.Value > fList[winner])
-                        {
-                            winner = sub.Key;
-                        }
-                        else if (sub.Value == fList[winner])
-                        {
-                            //check the kickers
-                            int tmp = 0, pntr = 4;
-                            for (j = 4; j >= 0; j--)
-                            {
-                                if (users[winner]._hand.card[j].Rank == fList[winner])
-                                    j = j - 2;
-                                //if the value equals to 3ofakind iterate 3 indice
-                                tmp = users[winner]._hand.card[j].Rank;
-                                for (z = pntr; z >= 0; z--)
-                                {
-                                    if (users[sub.Key]._hand.card[z].Rank == fList[sub.Key])
-                                        z = z - 2;
-                                    if (users[sub.Key]._hand.card[z].Rank > tmp)
-                                    {
-                                        winner = sub.Key;
-                                        j = -1;
-                                        break;
-                                    }
-                                    else if (tmp > users[sub.Key]._hand.card[z].Rank)
-                                    {
-                                        j = -1;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        //if they're equal, set 2nd arrays pointer to where it lasted.
-                                        pntr = z - 1;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                winner = "";
-                return false;
-            }
-            return true;
+            return CheckKickers(2);
         }
 
         public bool CheckHighCard()
@@ -362,6 +251,68 @@ namespace Test2
                     break;
                 }
                 else if (equal == 1) { winner = ""; }
+            }
+            return true;
+        }
+
+        public bool CheckKickers(int nOfAKind)
+        {
+            int j = 0, z = 0;
+            if (fList.Count > 0)
+            {
+                foreach (KeyValuePair<string, int> sub in fList)
+                {
+                    if (winner == "")
+                    {
+                        winner = sub.Key;
+                    }
+                    else
+                    {
+                        if (sub.Value > fList[winner])
+                        {
+                            winner = sub.Key;
+                        }
+                        else if (sub.Value == fList[winner])
+                        {
+                            //check the kickers
+                            int tmp = 0, pntr = 4;
+                            for (j = 4; j >= 0; j--)
+                            {
+                                if (users[winner]._hand.card[j].Rank == fList[winner])
+                                    j = j - nOfAKind;
+                                //if the value equals to nofakind iterate n indice
+                                tmp = users[winner]._hand.card[j].Rank;
+                                for (z = pntr; z >= 0; z--)
+                                {
+                                    if (users[sub.Key]._hand.card[z].Rank == fList[sub.Key])
+                                        z = z - nOfAKind;
+                                    if (users[sub.Key]._hand.card[z].Rank > tmp)
+                                    {
+                                        winner = sub.Key;
+                                        j = -1;
+                                        break;
+                                    }
+                                    else if (tmp > users[sub.Key]._hand.card[z].Rank)
+                                    {
+                                        j = -1;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        //if they're equal, set 2nd arrays pointer to where it lasted.
+                                        pntr = z - 1;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                winner = "";
+                return false;
             }
             return true;
         }
