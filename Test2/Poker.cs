@@ -154,7 +154,7 @@ namespace Test2
                         tie = true; //keep it to check 2 flush can have same rank maybe
                         //KS, QS, 10S, 9S, 8S
                         //KD, QD, 10D, 9D, 8D
-                        for (j = HAND_SIZE-1; j >= 0; j--)
+                        for (j = HAND_SIZE - 1; j >= 0; j--)
                         {
                             if (users[winner]._hand.card[j].Rank > users[nam]._hand.card[j].Rank)
                             {
@@ -162,7 +162,7 @@ namespace Test2
                                 break;
                                 //cards are already sorted, don't have to go through all elements
                             }
-                            else if(users[winner]._hand.card[j].Rank < users[nam]._hand.card[j].Rank)
+                            else if (users[winner]._hand.card[j].Rank < users[nam]._hand.card[j].Rank)
                             {
                                 tie = false;
                                 winner = nam;

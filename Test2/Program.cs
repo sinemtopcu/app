@@ -13,7 +13,7 @@ namespace Test2
             Poker p = new Poker();
             p.AddPlayer("sinem", "4H, 6D, 6D, 8D, QC");
             p.AddPlayer("sinan", "KH, 10S, 10D, 2H, 9H");
-            p.AddPlayer("feon", "QS, 10H, 10C, JC, 3H");
+            p.AddPlayer("feon", "QS, 10H, 10C, JC, 4H");
             string winner = p.FindWinner();
             Console.WriteLine(winner);
             Console.ReadLine();
