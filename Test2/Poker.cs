@@ -105,6 +105,7 @@ namespace Test2
     {
         Dictionary<string, Player> users = new Dictionary<string, Player>();
         string winner = "";
+        const int HAND_SIZE = 5;
 
         public Poker()
         {
@@ -125,15 +126,19 @@ namespace Test2
         private bool CheckFlush()
         {
             List<string> fList = new List<string>();
+            int i = 1, j = 0;
+            bool tie = false;
             foreach (KeyValuePair<string, Player> g in users)
             {
-                if (g.Value._hand.card[0].Suit == g.Value._hand.card[1].Suit
-                    && g.Value._hand.card[0].Suit == g.Value._hand.card[2].Suit
-                    && g.Value._hand.card[0].Suit == g.Value._hand.card[3].Suit
-                    && g.Value._hand.card[0].Suit == g.Value._hand.card[4].Suit)
+                i = 1;
+                foreach (Card c in g.Value._hand.card)
                 {
-                    fList.Add(g.Key);
+                    if (g.Value._hand.card[0].Suit != c.Suit)
+                    { i = 0; break; }
                 }
+
+                if (i == 1)
+                    fList.Add(g.Key);
             }
             if (fList.Count > 0)
             {
@@ -145,10 +150,20 @@ namespace Test2
                     }
                     else
                     {
-                        for (int j = 4; j >= 0; j--)
+                        tie = true; //keep it to check 2 flush can have same rank maybe
+                        //KS, QS, 10S, 9S, 8S
+                        //KD, QD, 10D, 9D, 8D
+                        for (j = HAND_SIZE-1; j >= 0; j--)
                         {
-                            if (users[nam]._hand.card[j].Rank > users[winner]._hand.card[j].Rank)
+                            if (users[winner]._hand.card[j].Rank > users[nam]._hand.card[j].Rank)
                             {
+                                tie = false;
+                                break;
+                                //cards are already sorted, don't have to go through all elements
+                            }
+                            else if(users[winner]._hand.card[j].Rank < users[nam]._hand.card[j].Rank)
+                            {
+                                tie = false;
                                 winner = nam;
                                 break;
                             }
@@ -161,6 +176,9 @@ namespace Test2
                 winner = "";
                 return false;
             }
+
+            if (tie)
+                return false;
             return true;
         }
 
@@ -170,14 +188,17 @@ namespace Test2
             Dictionary<string, int> fList = new Dictionary<string, int>();
             foreach (KeyValuePair<string, Player> g in users)
             {
-                for (j = 4; j >= 2; j--)
+                //possible triplets - already sorted
+                // 0 , 1 , 2 , 3 , 4
+                // 9S, 8D, 8S, 8H, 7C
+                // 8D, 8S, 8H, 7C, 4C
+                // KH, QH, 8D, 8S, 8H
+                if (g.Value._hand.card[1].Rank == g.Value._hand.card[3].Rank
+                    || g.Value._hand.card[0].Rank == g.Value._hand.card[2].Rank
+                    || g.Value._hand.card[2].Rank == g.Value._hand.card[4].Rank)
                 {
-                    if (g.Value._hand.card[j].Rank == g.Value._hand.card[j - 1].Rank
-                        && g.Value._hand.card[j - 1].Rank == g.Value._hand.card[j - 2].Rank)
-                    {
-                        fList.Add(g.Key, g.Value._hand.card[j].Rank);
-                        break;
-                    }
+                    fList.Add(g.Key, g.Value._hand.card[j].Rank);
+                    break;
                 }
             }
             if (fList.Count > 0)
