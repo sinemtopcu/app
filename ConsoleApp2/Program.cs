@@ -252,6 +252,7 @@ namespace ConsoleApp2
     }
     class Program
     {
+        public const int CARD_COUNT = 5;
         static void Main(string[] args)
         {
             int i = 0, k = 0, numOfPlayers = 0;
@@ -277,16 +278,26 @@ namespace ConsoleApp2
             while (i < numOfPlayers)
             {
                 Console.Write("{0} Player Name : ", i + 1); string player = Console.ReadLine();
+                if (users.ContainsKey(player))
+                {
+                    Console.WriteLine("This player name exists, please enter a unique name to identify");
+                    continue;
+                }
                 Console.Write("{0} Player Hand : ", i + 1); string hand = Console.ReadLine();
 
                 k = 0;
-                Card[] c = new Card[5];
+                Card[] c = new Card[CARD_COUNT];
                 foreach (string sub in Regex.Split(hand, pattern))
                 {
                     string[] x = Regex.Split(sub, "(?=[HCDS])");
                     cardRanks.TryGetValue(x[0], out c[k].rank);
                     c[k].suit = x[1][0];
                     k++;
+                }
+                if (k != CARD_COUNT)
+                {
+                    Console.WriteLine("Player {0} can not have more or less than {1} cards", i + 1, CARD_COUNT);
+                    continue;
                 }
                 Array.Sort<Card>(c, (x, y) => x.rank.CompareTo(y.rank));
                 users.Add(player, c);
