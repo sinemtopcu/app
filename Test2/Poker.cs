@@ -25,6 +25,9 @@ namespace Test2
     {
         public List<Card> card = new List<Card>();
         const string pattern = @"\W+";
+        int Flush = 0;
+        int ThreeOK = 0;
+        int TwoOK = 0;
 
         public Hand() { }
 
@@ -45,6 +48,12 @@ namespace Test2
             }
             card.Sort((x, y) => x.Rank.CompareTo(y.Rank));
         }
+        public void setFlush(int p1) { Flush = p1; }
+        public int getFlush() { return Flush; }
+        public void set3ofK(int p1) { ThreeOK = p1; }
+        public int get3ofK() { return ThreeOK; }
+        public void set2ofK(int p1) { TwoOK = p1; }
+        public int get2ofK() { return TwoOK; }
     }
 
     class Player
@@ -106,12 +115,10 @@ namespace Test2
         Dictionary<string, Player> users = new Dictionary<string, Player>();
         Dictionary<string, int> fList = new Dictionary<string, int>();
         string winner = "";
+        bool tie = false;
         const int HAND_SIZE = 5;
 
-        public Poker()
-        {
-
-        }
+        public Poker() { }
 
         public void AddPlayer(string name, string hand)
         {
@@ -124,11 +131,52 @@ namespace Test2
             return users[name];
         }
 
+        private bool Comparator(int src)
+        {
+            int j = 0;
+            tie = true;
+            
+            foreach (KeyValuePair<string, Player> g in users)
+            {
+                if (src == 1 && g.Value._hand.getFlush() != 1)//come from flush but not flush don't check
+                {
+                    continue;
+                }
+                if (winner == "")
+                {
+                    winner = g.Key; tie = false;
+                }
+                else
+                {
+                    for (j = HAND_SIZE - 1; j >= 0; j--)
+                    {
+                        if (g.Value._hand.card[j].Rank > users[winner]._hand.card[j].Rank)
+                        {
+                            winner = g.Key;
+                            tie = false;
+                            break;
+                        }
+                        else if (g.Value._hand.card[j].Rank == users[winner]._hand.card[j].Rank)
+                        {
+                            tie = true;
+                        }
+                        else
+                        {
+                            tie = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (tie)
+                return false;
+            
+            return true;
+        }
+
         private bool CheckFlush()
         {
-            List<string> fList = new List<string>();
             int i = 1, j = 0;
-            bool tie = false;
             foreach (KeyValuePair<string, Player> g in users)
             {
                 i = 1;
@@ -139,48 +187,9 @@ namespace Test2
                 }
 
                 if (i == 1)
-                    fList.Add(g.Key);
+                    g.Value._hand.setFlush(1);
             }
-            if (fList.Count > 0)
-            {
-                foreach (string nam in fList)
-                {
-                    if (winner == "")
-                    {
-                        winner = nam;
-                    }
-                    else
-                    {
-                        tie = true; //keep it to check 2 flush can have same rank maybe
-                        //KS, QS, 10S, 9S, 8S
-                        //KD, QD, 10D, 9D, 8D
-                        for (j = HAND_SIZE - 1; j >= 0; j--)
-                        {
-                            if (users[winner]._hand.card[j].Rank > users[nam]._hand.card[j].Rank)
-                            {
-                                tie = false;
-                                break;
-                                //cards are already sorted, don't have to go through all elements
-                            }
-                            else if (users[winner]._hand.card[j].Rank < users[nam]._hand.card[j].Rank)
-                            {
-                                tie = false;
-                                winner = nam;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                winner = "";
-                return false;
-            }
-
-            if (tie)
-                return false;
-            return true;
+            return Comparator(1);
         }
 
         private bool Check3OfAKind()
@@ -199,6 +208,7 @@ namespace Test2
                     || g.Value._hand.card[0].Rank == g.Value._hand.card[2].Rank
                     || g.Value._hand.card[2].Rank == g.Value._hand.card[4].Rank)
                 {
+                    g.Value._hand.set3ofK(g.Value._hand.card[2].Rank);
                     fList.Add(g.Key, g.Value._hand.card[2].Rank);
                     break;
                 }
@@ -216,6 +226,7 @@ namespace Test2
                 {
                     if (g.Value._hand.card[j].Rank == g.Value._hand.card[j - 1].Rank)
                     {
+                        g.Value._hand.set2ofK(g.Value._hand.card[j].Rank);
                         fList.Add(g.Key, g.Value._hand.card[j].Rank);
                         break;
                     }
@@ -226,34 +237,7 @@ namespace Test2
 
         public bool CheckHighCard()
         {
-            int j = 0, equal = 0;
-            for (j = 4; j >= 0; j--)
-            {
-                foreach (KeyValuePair<string, Player> g in users)
-                {
-                    if (winner == "")
-                    {
-                        winner = g.Key;
-                    }
-                    else
-                    {
-                        if (g.Value._hand.card[j].Rank > users[winner]._hand.card[j].Rank)
-                        {
-                            winner = g.Key; equal = 0;
-                        }
-                        else if (g.Value._hand.card[j].Rank == users[winner]._hand.card[j].Rank)
-                        {
-                            equal = 1;
-                        }
-                    }
-                }
-                if (equal == 0 && winner != "")
-                {
-                    break;
-                }
-                else if (equal == 1) { winner = ""; }
-            }
-            return true;
+            return Comparator(0);
         }
 
         public bool CheckKickers(int nOfAKind)

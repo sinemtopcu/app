@@ -11,9 +11,9 @@ namespace Test2
         static void Main(string[] args)
         {
             Poker p = new Poker();
-            p.AddPlayer("sinem", "4H, 6D, 6D, 8D, QC");
-            p.AddPlayer("sinan", "KH, 10S, 10D, 2H, 9H");
-            p.AddPlayer("feon", "QS, 10H, 10C, JC, 4H");
+            p.AddPlayer("sinem", "KH, 8S, 5D, 2H, 9H");
+            p.AddPlayer("sinan", "4H, 7D, 6D, 8D, QC");
+            p.AddPlayer("feon", "3S, KH, 9D, 6H, 5H");
             string winner = p.FindWinner();
             Console.WriteLine(winner);
             Console.ReadLine();
